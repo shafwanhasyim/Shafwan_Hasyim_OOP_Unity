@@ -14,6 +14,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 moveFriction;
     private Vector2 stopFriction;
     private Rigidbody2D rb;
+    private float padding = 1f;
 
     void Start()
     {
@@ -39,6 +40,23 @@ public class PlayerMovement : MonoBehaviour
             {
                 rb.velocity = Vector2.zero;
             }
+            MoveBound();
+        }
+    }
+
+    private void MoveBound()
+    {
+        Camera mainCamera = GameObject.FindWithTag("MainCamera").GetComponent<Camera>(); // Access the main camera only within this method
+        if (mainCamera != null)
+        {
+            Vector3 viewportPosition = mainCamera.WorldToViewportPoint(transform.position);
+            viewportPosition.x = Mathf.Clamp(viewportPosition.x, padding / 100f, 1 - padding / 100f);
+            viewportPosition.y = Mathf.Clamp(viewportPosition.y, padding / 100f, 1 - padding / 100f);
+            transform.position = mainCamera.ViewportToWorldPoint(viewportPosition);
+        }
+        else
+        {
+            Debug.LogWarning("No main camera found in the scene.");
         }
     }
 
