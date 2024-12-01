@@ -1,42 +1,39 @@
+
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.Collections;
 
 public class LevelManager : MonoBehaviour
 {
-    [SerializeField] private Animator animator;
+    [SerializeField] Animator animator;
 
     void Awake()
     {
         animator.enabled = false;
     }
 
+    IEnumerator LoadSceneAsync(string sceneName)
+    {
+        yield return new WaitForSeconds(1);
+
+        SceneManager.LoadSceneAsync(sceneName);
+
+        Player.Instance.transform.position = new(0, -3.5f);
+
+        yield return new WaitForSeconds(1);
+        OnTransitionEnd();
+    }
+
     public void LoadScene(string sceneName)
     {
         StartCoroutine(LoadSceneAsync(sceneName));
+        animator.enabled = true;
+        animator.SetTrigger("Start");
     }
 
-    private IEnumerator LoadSceneAsync(string sceneName)
+    public void OnTransitionEnd()
     {
-        if (animator != null)
-        {
-            animator.enabled = true;
-            animator.SetTrigger("TriggerScene");
-        }
-
-        yield return new WaitForSeconds(1f);
-
-        AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(sceneName);
-        asyncOperation.allowSceneActivation = false;
-
-        while (!asyncOperation.isDone)
-        {
-            if (asyncOperation.progress >= 0.9f)
-            {
-                asyncOperation.allowSceneActivation = true;
-            }
-
-            yield return null;
-        }
+        animator.enabled = false;
     }
 }
